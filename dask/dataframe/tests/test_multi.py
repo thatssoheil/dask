@@ -2581,7 +2581,9 @@ def test_missing_index_uses_a_dtype_that_holds_missing_values():
     from dask.dataframe.multi import _missing_index
 
     assert _missing_index(2, "str").isna().all()
-    assert _missing_index(2, "str").dtype == "str"
+    # "str" is the string extension dtype on pandas 3 and object dtype on
+    # pandas < 3, so ask pandas what it resolves to instead of pinning either.
+    assert _missing_index(2, "str").dtype == pd.Index([np.nan], dtype="str").dtype
 
     upcast = _missing_index(2, "int64")
     assert upcast.isna().all()
